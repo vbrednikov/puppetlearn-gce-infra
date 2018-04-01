@@ -1,0 +1,17 @@
+---
+- name: install puppet collections
+  become: yes
+  apt:
+    deb: http://apt.puppetlabs.com/puppetlabs-release-pc1-trusty.deb
+
+- name: install puppetserver and agent
+  become: yes
+  with_items:
+    - puppetserver
+    - puppet-agent
+    -   git
+  apt:
+    name: "{{ item }}"
+    install_recommends: no
+    state: present
+    update_cache: yes

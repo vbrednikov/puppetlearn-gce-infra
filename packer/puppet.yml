@@ -1,0 +1,16 @@
+- name: setup puppetmaster
+  hosts: puppetmaster
+  tags:
+  - master
+  roles:
+  - puppetmaster
+
+- name: setup puppetnode
+  hosts: puppetnode
+  pre_tasks:
+    - name: ensure sudo
+      raw: which sudo  || yum -y install sudo
+  tags:
+  - node
+  roles:
+  - puppetnode

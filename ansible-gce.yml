@@ -1,0 +1,55 @@
+---
+- hosts: puppet
+  become: yes
+  handlers:
+    - name: restart puppetserver
+      service: name=puppetserver state=restarted
+  tasks:
+    - name: clone/update the repo
+      git:
+        repo: https://github.com/vbrednikov/puppetlearn.git
+        dest: /git
+
+    - name: correct master-code-dir
+      lineinfile:
+        path: /etc/puppetlabs/puppetserver/conf.d/puppetserver.conf
+        regexp: '^\s+master-code-dir'
+        line: "    master-code-dir: /git/workspace/code"
+      notify: restart puppetserver
+
+
+- hosts:
+    - node1
+    - node2
+    - node3
+    - node4
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Request certificate
+      shell: /bin/bash -l -c "/opt/puppetlabs/bin/puppet agent -t" || true
+      register: result
+    - name: debug
+      debug:
+         var: result
+         verbosity: 1
+
+- hosts: puppet
+  become: yes
+  tasks:
+   - name: Sign all certs
+     shell:  /opt/puppetlabs/bin/puppet cert sign -y --all || true
+     register: result
+
+- hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: clean pkg cache (rh)
+      shell: /bin/bash -l -c "yum -y clean all; /opt/puppetlabs/bin/puppet agent -t" || true
+      register: result
+      when: ansible_os_family == "RedHat"
+    - name: clean pkg cache (debian)
+      shell: /bin/bash -l -c "apt-get update; /opt/puppetlabs/bin/puppet agent -t" || true
+      register: result
+      when: ansible_os_family == "Debian"
