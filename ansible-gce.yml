@@ -45,11 +45,11 @@
   gather_facts: yes
   become: yes
   tasks:
-    - name: clean pkg cache (rh)
+    - name: clean pkg cache and apply puppet (rh)
       shell: /bin/bash -l -c "yum -y clean all; /opt/puppetlabs/bin/puppet agent -t" || true
       register: result
       when: ansible_os_family == "RedHat"
-    - name: clean pkg cache (debian)
+    - name: clean pkg cache and apply puppet (debian)
       shell: /bin/bash -l -c "apt-get update; /opt/puppetlabs/bin/puppet agent -t" || true
       register: result
       when: ansible_os_family == "Debian"

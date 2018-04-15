@@ -27,6 +27,9 @@ cd terrafrom && terraform init && terraform apply
 
 Edit `inventory/gce.ini` first
 
+
+If ansible-playbook is available in your path, this step will be done automatically (but still can fail, hahaha)
+
 ```
 ansible-playbook -i inventory ansible-gce.yml
 ```
